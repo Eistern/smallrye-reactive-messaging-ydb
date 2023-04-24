@@ -1,16 +1,18 @@
 package io.smallrye.reactive.messaging.ydb;
 
-import org.eclipse.microprofile.reactive.messaging.Message;
-import tech.ydb.topic.read.events.AbstractReadEventHandler;
-import tech.ydb.topic.read.events.DataReceivedEvent;
-
 import java.util.List;
 import java.util.concurrent.Flow;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class YdbTopicMessagePublisher extends AbstractReadEventHandler implements Flow.Publisher<Message<tech.ydb.topic.read.Message>> {
+import org.eclipse.microprofile.reactive.messaging.Message;
+
+import tech.ydb.topic.read.events.AbstractReadEventHandler;
+import tech.ydb.topic.read.events.DataReceivedEvent;
+
+public class YdbTopicMessagePublisher extends AbstractReadEventHandler
+        implements Flow.Publisher<Message<tech.ydb.topic.read.Message>> {
     private final AtomicReference<Flow.Subscriber<? super Message<tech.ydb.topic.read.Message>>> exclusiveSubscriber = new AtomicReference<>();
 
     private final Semaphore subscriberRequests = new Semaphore(0);
