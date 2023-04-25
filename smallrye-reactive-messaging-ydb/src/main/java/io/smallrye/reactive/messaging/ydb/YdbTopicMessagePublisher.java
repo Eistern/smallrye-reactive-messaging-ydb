@@ -5,14 +5,17 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 import org.eclipse.microprofile.reactive.messaging.Message;
 
 import tech.ydb.topic.read.events.AbstractReadEventHandler;
 import tech.ydb.topic.read.events.DataReceivedEvent;
+import tech.ydb.topic.read.events.ReaderClosedEvent;
 
 public class YdbTopicMessagePublisher extends AbstractReadEventHandler
         implements Flow.Publisher<Message<tech.ydb.topic.read.Message>> {
+    private static final Logger LOGGER = Logger.getLogger(YdbTopicMessagePublisher.class.getName());
     private final AtomicReference<Flow.Subscriber<? super Message<tech.ydb.topic.read.Message>>> exclusiveSubscriber = new AtomicReference<>();
 
     private final Semaphore subscriberRequests = new Semaphore(0);
@@ -38,6 +41,11 @@ public class YdbTopicMessagePublisher extends AbstractReadEventHandler
             }
         }
         event.commit();
+    }
+
+    @Override
+    public void onReaderClosed(ReaderClosedEvent event) {
+        LOGGER.info(event.toString());
     }
 
     @Override

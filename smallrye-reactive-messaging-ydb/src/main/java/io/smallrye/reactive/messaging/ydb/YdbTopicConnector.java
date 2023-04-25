@@ -1,5 +1,6 @@
 package io.smallrye.reactive.messaging.ydb;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -57,7 +58,10 @@ public class YdbTopicConnector implements InboundConnector {
                         .setEventHandler(publisher)
                         .build());
 
-        asyncReader.init().join();
+        CompletableFuture<Void> init = asyncReader.init();
+
+        init.join();
+        System.out.println(init.isCompletedExceptionally());
 
         return publisher;
     }

@@ -17,11 +17,15 @@ import tech.ydb.topic.description.Consumer;
 import tech.ydb.topic.description.SupportedCodecs;
 import tech.ydb.topic.settings.CreateTopicSettings;
 import tech.ydb.topic.settings.WriterSettings;
+import tech.ydb.topic.write.InitResult;
 import tech.ydb.topic.write.Message;
 import tech.ydb.topic.write.SyncWriter;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class YdbTopicTestBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(YdbTopicTestBase.class);
@@ -75,10 +79,21 @@ public class YdbTopicTestBase {
         SyncWriter syncWriter = YDB_ADMIN_CLIENT.createSyncWriter(WriterSettings.newBuilder()
                 .setCodec(Codec.RAW)
                 .setTopicPath(topic)
+                .setProducerId("test-producer")
+                .setMessageGroupId("test-producer")
                 .build());
+        InitResult initResult = syncWriter.initAndWait();
+
+        System.out.println(initResult);
 
         for (byte[] message : data) {
             syncWriter.send(Message.of(message));
+        }
+        syncWriter.flush();
+        try {
+            syncWriter.shutdown(1, TimeUnit.DAYS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
         }
     }
 

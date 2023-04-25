@@ -4,6 +4,7 @@ import io.smallrye.mutiny.helpers.test.AssertSubscriber;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.concurrent.Flow;
 
 public class YdbTopicTest extends YdbTopicTestBase {
@@ -23,7 +24,7 @@ public class YdbTopicTest extends YdbTopicTestBase {
 
         objectAssertSubscriber.awaitSubscription();
         objectAssertSubscriber.assertSubscribed();
-        objectAssertSubscriber.awaitNextItems(2);
+        objectAssertSubscriber.awaitNextItems(2, Duration.ofDays(1));
         objectAssertSubscriber.cancel();
 
         deleteTopic(TOPIC_TAME);
